@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useRouter } from 'next/navigation';
 import { projects } from '@/lib/seed/projects';
@@ -15,6 +14,22 @@ const TILE_URLS: Record<string, string> = {
     'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
 };
 
+/**
+ * Inject Leaflet CSS at runtime so it works regardless of bundler config,
+ * dynamic imports with ssr:false, or CDN availability.
+ */
+function ensureLeafletCSS() {
+  if (typeof document === 'undefined') return;
+  const id = '__leaflet_css__';
+  if (document.getElementById(id)) return;
+  const link = document.createElement('link');
+  link.id = id;
+  link.rel = 'stylesheet';
+  link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+  link.crossOrigin = 'anonymous';
+  document.head.appendChild(link);
+}
+
 export default function PortfolioMapInner() {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,7 +41,6 @@ export default function PortfolioMapInner() {
   const basemapRef = useRef(basemap);
   const router = useRouter();
 
-  // Keep basemap ref in sync for the init effect
   basemapRef.current = basemap;
 
   // Close filter dropdown when clicking outside
@@ -42,69 +56,76 @@ export default function PortfolioMapInner() {
     }
   }, [filterOpen]);
 
-  // Initialize map — resilient to React strict mode's mount→unmount→remount cycle
+  // Initialize map
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Nuclear cleanup: Leaflet stamps _leaflet_id on the container DOM node.
-    // After strict mode's unmount→remount, the ref points to the same DOM node
-    // which still has _leaflet_id, causing L.map() to silently fail.
-    // Clear everything so Leaflet treats it as a fresh container.
+    // Ensure Leaflet CSS is loaded (runtime injection as fallback)
+    ensureLeafletCSS();
+
+    // Clean up any previous Leaflet instance
     if (mapRef.current) {
       try { mapRef.current.remove(); } catch { /* already removed */ }
       mapRef.current = null;
       tileLayerRef.current = null;
     }
-    // Remove Leaflet's internal ID stamp from the DOM node
+
+    // Clear Leaflet's internal stamp so it treats the container as fresh
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (container as any)._leaflet_id;
     container.innerHTML = '';
 
-    const map = L.map(container, {
-      zoomControl: false,
-      attributionControl: true,
-    });
+    // Small delay to ensure CSS is loaded before Leaflet measures the container
+    const timer = setTimeout(() => {
+      if (!container || mapRef.current) return;
 
-    L.control.zoom({ position: 'topright' }).addTo(map);
+      const map = L.map(container, {
+        zoomControl: false,
+        attributionControl: true,
+      });
 
-    // Add initial tile layer
-    const tileLayer = L.tileLayer(TILE_URLS[basemapRef.current], {
-      maxZoom: 18,
-      attribution: basemapRef.current === 'streets'
-        ? '&copy; <a href="https://carto.com/">CartoDB</a>'
-        : '&copy; <a href="https://www.esri.com/">Esri</a>',
-    }).addTo(map);
+      L.control.zoom({ position: 'topright' }).addTo(map);
 
-    tileLayerRef.current = tileLayer;
-    mapRef.current = map;
+      const tileLayer = L.tileLayer(TILE_URLS[basemapRef.current], {
+        maxZoom: 18,
+        attribution: basemapRef.current === 'streets'
+          ? '&copy; <a href="https://carto.com/">CartoDB</a>'
+          : '&copy; <a href="https://www.esri.com/">Esri</a>',
+      }).addTo(map);
 
-    // Fit bounds to all projects
-    const bounds = L.latLngBounds(projects.map((p) => [p.lat, p.lng]));
-    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 4 });
+      tileLayerRef.current = tileLayer;
+      mapRef.current = map;
 
-    // Add markers
-    addMarkers(map, null);
+      // Fit bounds to all projects
+      const bounds = L.latLngBounds(projects.map((p) => [p.lat, p.lng]));
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 4 });
 
-    // Force Leaflet to recalculate container size after paint
-    requestAnimationFrame(() => {
-      if (mapRef.current) {
-        mapRef.current.invalidateSize();
-      }
-    });
+      // Add markers
+      addMarkers(map, null);
+
+      // Force recalculate after paint
+      requestAnimationFrame(() => {
+        if (mapRef.current) {
+          mapRef.current.invalidateSize();
+        }
+      });
+    }, 100);
 
     return () => {
-      try { map.remove(); } catch { /* may already be gone */ }
-      mapRef.current = null;
-      tileLayerRef.current = null;
-      // Clear Leaflet's internal ID so the container can be reused
+      clearTimeout(timer);
+      if (mapRef.current) {
+        try { mapRef.current.remove(); } catch { /* ok */ }
+        mapRef.current = null;
+        tileLayerRef.current = null;
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (container) delete (container as any)._leaflet_id;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle basemap changes (only after initial mount)
+  // Handle basemap changes (skip initial mount)
   const isInitialMount = useRef(true);
   useEffect(() => {
     if (isInitialMount.current) {
@@ -181,9 +202,17 @@ export default function PortfolioMapInner() {
 
   return (
     <div className="relative" style={{ isolation: 'isolate' }}>
+      {/* Map container — explicit inline styles guarantee height even without Leaflet CSS */}
       <div
         ref={containerRef}
-        className="h-[500px] rounded-[var(--radius-sm)]"
+        style={{
+          height: '500px',
+          width: '100%',
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: '6px',
+          background: '#e5e7eb',
+        }}
       />
 
       {/* Controls overlay */}
