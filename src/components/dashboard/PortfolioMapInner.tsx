@@ -71,15 +71,21 @@ export default function PortfolioMapInner() {
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !tileLayerRef.current) return;
-    tileLayerRef.current.setUrl(TILE_URLS[basemap]);
-    if (basemap === 'streets') {
-      tileLayerRef.current.options.attribution =
-        '&copy; <a href="https://carto.com/">CartoDB</a>';
-    } else {
-      tileLayerRef.current.options.attribution =
-        '&copy; <a href="https://www.esri.com/">Esri</a>';
+    if (!mapRef.current) return;
+    // Remove old tile layer and add a new one — setUrl alone doesn't handle
+    // switching between tile providers with different subdomain configs
+    if (tileLayerRef.current) {
+      mapRef.current.removeLayer(tileLayerRef.current);
     }
+    const newTile = L.tileLayer(TILE_URLS[basemap], {
+      maxZoom: 18,
+      attribution: basemap === 'streets'
+        ? '&copy; <a href="https://carto.com/">CartoDB</a>'
+        : '&copy; <a href="https://www.esri.com/">Esri</a>',
+    }).addTo(mapRef.current);
+    // Insert tile layer below markers
+    newTile.setZIndex(0);
+    tileLayerRef.current = newTile;
   }, [basemap]);
 
   useEffect(() => {
