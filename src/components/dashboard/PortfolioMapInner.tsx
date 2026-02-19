@@ -8,7 +8,7 @@ import { projects } from '@/lib/seed/projects';
 import { commodityColor, commodityLabel, formatHectares } from '@/lib/utils';
 import { Filter, ChevronDown } from 'lucide-react';
 
-const TILE_URLS = {
+const TILE_URLS: Record<string, string> = {
   satellite:
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   streets:
@@ -23,8 +23,11 @@ export default function PortfolioMapInner() {
   const [filter, setFilter] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
-  const isInitialMount = useRef(true);
+  const basemapRef = useRef(basemap);
   const router = useRouter();
+
+  // Keep basemap ref in sync for the init effect
+  basemapRef.current = basemap;
 
   // Close filter dropdown when clicking outside
   useEffect(() => {
@@ -39,10 +42,20 @@ export default function PortfolioMapInner() {
     }
   }, [filterOpen]);
 
+  // Initialize map — resilient to React strict mode's mount→unmount→remount cycle
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    const map = L.map(containerRef.current, {
+    // Clean up any previous Leaflet instance attached to this container
+    // (handles strict mode remount where container div is reused)
+    if (mapRef.current) {
+      mapRef.current.remove();
+      mapRef.current = null;
+      tileLayerRef.current = null;
+    }
+
+    const map = L.map(container, {
       zoomControl: false,
       attributionControl: true,
     });
@@ -50,9 +63,11 @@ export default function PortfolioMapInner() {
     L.control.zoom({ position: 'topright' }).addTo(map);
 
     // Add initial tile layer
-    const tileLayer = L.tileLayer(TILE_URLS[basemap], {
+    const tileLayer = L.tileLayer(TILE_URLS[basemapRef.current], {
       maxZoom: 18,
-      attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
+      attribution: basemapRef.current === 'streets'
+        ? '&copy; <a href="https://carto.com/">CartoDB</a>'
+        : '&copy; <a href="https://www.esri.com/">Esri</a>',
     }).addTo(map);
 
     tileLayerRef.current = tileLayer;
@@ -75,19 +90,19 @@ export default function PortfolioMapInner() {
     return () => {
       map.remove();
       mapRef.current = null;
+      tileLayerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Handle basemap changes (only after initial mount)
+  const isInitialMount = useRef(true);
   useEffect(() => {
-    // Skip on initial mount — the init effect already created the tile layer
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
     if (!mapRef.current) return;
-    // Remove old tile layer and add a new one — setUrl alone doesn't handle
-    // switching between tile providers with different subdomain configs
     if (tileLayerRef.current) {
       mapRef.current.removeLayer(tileLayerRef.current);
     }
@@ -97,14 +112,13 @@ export default function PortfolioMapInner() {
         ? '&copy; <a href="https://carto.com/">CartoDB</a>'
         : '&copy; <a href="https://www.esri.com/">Esri</a>',
     }).addTo(mapRef.current);
-    // Insert tile layer below markers
     newTile.setZIndex(0);
     tileLayerRef.current = newTile;
   }, [basemap]);
 
+  // Handle filter changes
   useEffect(() => {
     if (!mapRef.current) return;
-    // Remove existing markers
     mapRef.current.eachLayer((layer) => {
       if (layer instanceof L.CircleMarker) {
         mapRef.current!.removeLayer(layer);
@@ -120,7 +134,6 @@ export default function PortfolioMapInner() {
       : projects;
 
     filtered.forEach((p) => {
-      // Scale radius by hectares (log scale, clamped)
       const radius = Math.max(6, Math.min(20, Math.log10(p.hectares) * 4));
 
       const marker = L.circleMarker([p.lat, p.lng], {
@@ -164,8 +177,7 @@ export default function PortfolioMapInner() {
         className="h-[500px] rounded-[var(--radius-sm)]"
       />
 
-      {/* Controls overlay — pointer-events:none on wrapper so map stays interactive,
-          pointer-events:auto on the actual controls so buttons work */}
+      {/* Controls overlay */}
       <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1000 }}>
         <div className="absolute top-3 left-3 flex items-start gap-2 pointer-events-auto">
           {/* Basemap toggle */}
