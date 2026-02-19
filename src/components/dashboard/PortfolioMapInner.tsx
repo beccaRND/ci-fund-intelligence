@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useRouter } from 'next/navigation';
 import { projects } from '@/lib/seed/projects';
@@ -22,6 +23,7 @@ export default function PortfolioMapInner() {
   const [filter, setFilter] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
+  const isInitialMount = useRef(true);
   const router = useRouter();
 
   // Close filter dropdown when clicking outside
@@ -47,10 +49,10 @@ export default function PortfolioMapInner() {
 
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    const tileLayer = L.tileLayer(TILE_URLS.satellite, {
+    // Add initial tile layer
+    const tileLayer = L.tileLayer(TILE_URLS[basemap], {
       maxZoom: 18,
-      attribution:
-        '&copy; <a href="https://www.esri.com/">Esri</a>',
+      attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
     }).addTo(map);
 
     tileLayerRef.current = tileLayer;
@@ -63,6 +65,13 @@ export default function PortfolioMapInner() {
     // Add markers
     addMarkers(map, null);
 
+    // Force Leaflet to recalculate container size after paint
+    requestAnimationFrame(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    });
+
     return () => {
       map.remove();
       mapRef.current = null;
@@ -71,6 +80,11 @@ export default function PortfolioMapInner() {
   }, []);
 
   useEffect(() => {
+    // Skip on initial mount — the init effect already created the tile layer
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     if (!mapRef.current) return;
     // Remove old tile layer and add a new one — setUrl alone doesn't handle
     // switching between tile providers with different subdomain configs
