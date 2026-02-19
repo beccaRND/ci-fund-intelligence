@@ -122,68 +122,70 @@ export default function PortfolioMapInner() {
   const commodities = [...new Set(projects.map((p) => p.commodity))];
 
   return (
-    <div className="relative">
+    <div className="relative" style={{ isolation: 'isolate' }}>
       <div
         ref={containerRef}
         className="h-[500px] rounded-[var(--radius-sm)]"
-        style={{ zIndex: 1 }}
       />
 
-      {/* Controls overlay */}
-      <div className="absolute top-3 left-3 z-[1000] flex flex-col gap-2">
-        {/* Basemap toggle */}
-        <div className="bg-ci-white/95 backdrop-blur rounded-[var(--radius-md)] shadow-[var(--shadow-md)] p-1 flex gap-1">
-          <button
-            onClick={() => setBasemap('satellite')}
-            className={`px-3 py-1.5 rounded-[var(--radius-sm)] text-[11px] font-semibold transition-colors ${
-              basemap === 'satellite'
-                ? 'bg-ci-green text-white'
-                : 'text-ci-gray-700 hover:bg-ci-gray-100'
-            }`}
-          >
-            Satellite
-          </button>
-          <button
-            onClick={() => setBasemap('streets')}
-            className={`px-3 py-1.5 rounded-[var(--radius-sm)] text-[11px] font-semibold transition-colors ${
-              basemap === 'streets'
-                ? 'bg-ci-green text-white'
-                : 'text-ci-gray-700 hover:bg-ci-gray-100'
-            }`}
-          >
-            Streets
-          </button>
-        </div>
-
-        {/* Commodity filter */}
-        <div className="bg-ci-white/95 backdrop-blur rounded-[var(--radius-md)] shadow-[var(--shadow-md)] p-2">
-          <div className="text-[10px] text-ci-gray-500 uppercase tracking-wider font-semibold mb-1.5 px-1">
-            Filter
-          </div>
-          <div className="flex flex-col gap-0.5">
+      {/* Controls overlay — pointer-events:none on wrapper so map stays interactive,
+          pointer-events:auto on the actual panels so buttons work */}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1000 }}>
+        <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-auto">
+          {/* Basemap toggle */}
+          <div className="bg-ci-white/95 backdrop-blur rounded-[var(--radius-md)] shadow-[var(--shadow-md)] p-1 flex gap-1">
             <button
-              onClick={() => setFilter(null)}
-              className={`flex items-center gap-2 px-2 py-1 rounded-[var(--radius-sm)] text-[11px] transition-colors ${
-                filter === null ? 'bg-ci-green-light text-ci-green-dark font-semibold' : 'text-ci-gray-700 hover:bg-ci-gray-100'
+              onClick={() => setBasemap('satellite')}
+              className={`px-3 py-1.5 rounded-[var(--radius-sm)] text-[11px] font-semibold transition-colors ${
+                basemap === 'satellite'
+                  ? 'bg-ci-green text-white'
+                  : 'text-ci-gray-700 hover:bg-ci-gray-100'
               }`}
             >
-              All ({projects.length})
+              Satellite
             </button>
-            {commodities.map((c) => (
+            <button
+              onClick={() => setBasemap('streets')}
+              className={`px-3 py-1.5 rounded-[var(--radius-sm)] text-[11px] font-semibold transition-colors ${
+                basemap === 'streets'
+                  ? 'bg-ci-green text-white'
+                  : 'text-ci-gray-700 hover:bg-ci-gray-100'
+              }`}
+            >
+              Streets
+            </button>
+          </div>
+
+          {/* Commodity filter */}
+          <div className="bg-ci-white/95 backdrop-blur rounded-[var(--radius-md)] shadow-[var(--shadow-md)] p-2">
+            <div className="text-[10px] text-ci-gray-500 uppercase tracking-wider font-semibold mb-1.5 px-1">
+              Filter
+            </div>
+            <div className="flex flex-col gap-0.5">
               <button
-                key={c}
-                onClick={() => setFilter(filter === c ? null : c)}
+                onClick={() => setFilter(null)}
                 className={`flex items-center gap-2 px-2 py-1 rounded-[var(--radius-sm)] text-[11px] transition-colors ${
-                  filter === c ? 'bg-ci-green-light text-ci-green-dark font-semibold' : 'text-ci-gray-700 hover:bg-ci-gray-100'
+                  filter === null ? 'bg-ci-green-light text-ci-green-dark font-semibold' : 'text-ci-gray-700 hover:bg-ci-gray-100'
                 }`}
               >
-                <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0"
-                  style={{ backgroundColor: commodityColor(c) }}
-                />
-                {commodityLabel(c)} ({projects.filter((p) => p.commodity === c).length})
+                All ({projects.length})
               </button>
-            ))}
+              {commodities.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setFilter(filter === c ? null : c)}
+                  className={`flex items-center gap-2 px-2 py-1 rounded-[var(--radius-sm)] text-[11px] transition-colors ${
+                    filter === c ? 'bg-ci-green-light text-ci-green-dark font-semibold' : 'text-ci-gray-700 hover:bg-ci-gray-100'
+                  }`}
+                >
+                  <span
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: commodityColor(c) }}
+                  />
+                  {commodityLabel(c)} ({projects.filter((p) => p.commodity === c).length})
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
