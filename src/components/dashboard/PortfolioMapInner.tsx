@@ -47,13 +47,19 @@ export default function PortfolioMapInner() {
     const container = containerRef.current;
     if (!container) return;
 
-    // Clean up any previous Leaflet instance attached to this container
-    // (handles strict mode remount where container div is reused)
+    // Nuclear cleanup: Leaflet stamps _leaflet_id on the container DOM node.
+    // After strict mode's unmount→remount, the ref points to the same DOM node
+    // which still has _leaflet_id, causing L.map() to silently fail.
+    // Clear everything so Leaflet treats it as a fresh container.
     if (mapRef.current) {
-      mapRef.current.remove();
+      try { mapRef.current.remove(); } catch { /* already removed */ }
       mapRef.current = null;
       tileLayerRef.current = null;
     }
+    // Remove Leaflet's internal ID stamp from the DOM node
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    delete (container as any)._leaflet_id;
+    container.innerHTML = '';
 
     const map = L.map(container, {
       zoomControl: false,
@@ -88,9 +94,12 @@ export default function PortfolioMapInner() {
     });
 
     return () => {
-      map.remove();
+      try { map.remove(); } catch { /* may already be gone */ }
       mapRef.current = null;
       tileLayerRef.current = null;
+      // Clear Leaflet's internal ID so the container can be reused
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (container) delete (container as any)._leaflet_id;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
