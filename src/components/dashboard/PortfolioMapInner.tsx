@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import L from 'leaflet';
 import { useRouter } from 'next/navigation';
 import { projects } from '@/lib/seed/projects';
 import { commodityColor, commodityLabel, formatHectares } from '@/lib/utils';
+import { Filter, ChevronDown } from 'lucide-react';
 
 const TILE_URLS = {
   satellite:
@@ -19,7 +20,22 @@ export default function PortfolioMapInner() {
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const [basemap, setBasemap] = useState<'satellite' | 'streets'>('satellite');
   const [filter, setFilter] = useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Close filter dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+        setFilterOpen(false);
+      }
+    }
+    if (filterOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [filterOpen]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -129,9 +145,9 @@ export default function PortfolioMapInner() {
       />
 
       {/* Controls overlay — pointer-events:none on wrapper so map stays interactive,
-          pointer-events:auto on the actual panels so buttons work */}
+          pointer-events:auto on the actual controls so buttons work */}
       <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1000 }}>
-        <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-auto">
+        <div className="absolute top-3 left-3 flex items-start gap-2 pointer-events-auto">
           {/* Basemap toggle */}
           <div className="bg-ci-white/95 backdrop-blur rounded-[var(--radius-md)] shadow-[var(--shadow-md)] p-1 flex gap-1">
             <button
@@ -156,36 +172,50 @@ export default function PortfolioMapInner() {
             </button>
           </div>
 
-          {/* Commodity filter */}
-          <div className="bg-ci-white/95 backdrop-blur rounded-[var(--radius-md)] shadow-[var(--shadow-md)] p-2">
-            <div className="text-[10px] text-ci-gray-500 uppercase tracking-wider font-semibold mb-1.5 px-1">
-              Filter
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <button
-                onClick={() => setFilter(null)}
-                className={`flex items-center gap-2 px-2 py-1 rounded-[var(--radius-sm)] text-[11px] transition-colors ${
-                  filter === null ? 'bg-ci-green-light text-ci-green-dark font-semibold' : 'text-ci-gray-700 hover:bg-ci-gray-100'
-                }`}
-              >
-                All ({projects.length})
-              </button>
-              {commodities.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setFilter(filter === c ? null : c)}
-                  className={`flex items-center gap-2 px-2 py-1 rounded-[var(--radius-sm)] text-[11px] transition-colors ${
-                    filter === c ? 'bg-ci-green-light text-ci-green-dark font-semibold' : 'text-ci-gray-700 hover:bg-ci-gray-100'
-                  }`}
-                >
-                  <span
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: commodityColor(c) }}
-                  />
-                  {commodityLabel(c)} ({projects.filter((p) => p.commodity === c).length})
-                </button>
-              ))}
-            </div>
+          {/* Commodity filter dropdown */}
+          <div ref={filterRef} className="relative">
+            <button
+              onClick={() => setFilterOpen(!filterOpen)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] text-[11px] font-semibold transition-colors shadow-[var(--shadow-md)] ${
+                filter !== null
+                  ? 'bg-ci-green text-white'
+                  : 'bg-ci-white/95 backdrop-blur text-ci-gray-700 hover:bg-ci-gray-100'
+              }`}
+            >
+              <Filter size={12} />
+              {filter ? commodityLabel(filter) : 'Filter'}
+              <ChevronDown size={12} className={`transition-transform ${filterOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {filterOpen && (
+              <div className="absolute top-full left-0 mt-1 bg-ci-white/95 backdrop-blur rounded-[var(--radius-md)] shadow-[var(--shadow-md)] p-2 min-w-[160px]">
+                <div className="flex flex-col gap-0.5">
+                  <button
+                    onClick={() => { setFilter(null); setFilterOpen(false); }}
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] text-[11px] transition-colors ${
+                      filter === null ? 'bg-ci-green-light text-ci-green-dark font-semibold' : 'text-ci-gray-700 hover:bg-ci-gray-100'
+                    }`}
+                  >
+                    All ({projects.length})
+                  </button>
+                  {commodities.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => { setFilter(filter === c ? null : c); setFilterOpen(false); }}
+                      className={`flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] text-[11px] transition-colors ${
+                        filter === c ? 'bg-ci-green-light text-ci-green-dark font-semibold' : 'text-ci-gray-700 hover:bg-ci-gray-100'
+                      }`}
+                    >
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: commodityColor(c) }}
+                      />
+                      {commodityLabel(c)} ({projects.filter((p) => p.commodity === c).length})
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
