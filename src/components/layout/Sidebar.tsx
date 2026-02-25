@@ -72,7 +72,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-2">
+      <nav className="flex-1 overflow-y-auto py-4 px-2" data-tour="sidebar-nav">
         <div className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -111,7 +111,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
                 {/* Project sub-nav */}
                 {item.expandable && projectsOpen && !collapsed && (
-                  <div className="ml-5 mt-1 space-y-0.5 border-l-2 border-ci-gray-100 pl-3">
+                  <div className="ml-5 mt-1 space-y-0.5 border-l-2 border-ci-gray-100 pl-3" data-tour="sidebar-projects">
                     {projects.map((p) => (
                       <Link
                         key={p.id}

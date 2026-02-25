@@ -30,7 +30,7 @@ const countryFlags: Record<string, string> = {
 
 export default function FundHealthCards() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8" data-tour="dashboard-cards">
       {/* Total Hectares */}
       <div className="bg-ci-white rounded-[var(--radius-md)] shadow-[var(--shadow-card)] p-5 border-t-2 border-ci-green hover:shadow-[var(--shadow-card-hover)] transition-shadow">
         <div className="flex items-center justify-between mb-3">

@@ -4,9 +4,12 @@ import { useState } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
+import LoginGate from '@/components/auth/LoginGate';
+import GuidedTour, { useTour } from '@/components/tour/GuidedTour';
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+function AppContent({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { showTour, startTour, endTour } = useTour();
 
   return (
     <div className="min-h-screen flex">
@@ -23,6 +26,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <Header
           showMenuButton
           onMenuToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onStartTour={startTour}
         />
 
         <main className="flex-1 px-8 py-8 max-w-[1280px] w-full mx-auto">
@@ -31,6 +35,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         <Footer />
       </div>
+
+      <GuidedTour active={showTour} onEnd={endTour} />
     </div>
+  );
+}
+
+export default function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <LoginGate>
+      <AppContent>{children}</AppContent>
+    </LoginGate>
   );
 }

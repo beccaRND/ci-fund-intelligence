@@ -65,7 +65,7 @@ export default function ProjectStatusTable() {
   const needsAttention = sorted.filter((p) => (dataCompleteness[p.id]?.score ?? 0) < 30);
 
   return (
-    <div className="bg-ci-white rounded-[var(--radius-md)] shadow-[var(--shadow-card)] overflow-hidden">
+    <div className="bg-ci-white rounded-[var(--radius-md)] shadow-[var(--shadow-card)] overflow-hidden" data-tour="project-table">
       <div className="px-5 pt-5 pb-3">
         <h3
           className="text-lg font-bold text-ci-charcoal"

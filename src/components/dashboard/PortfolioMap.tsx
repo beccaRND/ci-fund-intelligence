@@ -13,7 +13,7 @@ const PortfolioMapInner = dynamic(() => import('./PortfolioMapInner'), {
 
 export default function PortfolioMap() {
   return (
-    <div className="bg-ci-white rounded-[var(--radius-md)] shadow-[var(--shadow-card)] p-1.5 mb-8">
+    <div className="bg-ci-white rounded-[var(--radius-md)] shadow-[var(--shadow-card)] p-1.5 mb-8" data-tour="portfolio-map">
       <PortfolioMapInner />
     </div>
   );
