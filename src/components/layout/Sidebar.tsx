@@ -36,9 +36,9 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   ];
 
   const infoItems = [
-    { href: '#', label: 'About the Fund', icon: Info },
-    { href: '#', label: 'Partnership Tiers', icon: TrendingUp },
-    { href: '#', label: 'CI Annual Report', icon: ExternalLink },
+    { href: '/about', label: 'About the Fund', icon: Info },
+    { href: '/partnership-tiers', label: 'Partnership Tiers', icon: TrendingUp },
+    { href: '#', label: 'CI Annual Report', icon: ExternalLink, external: true },
   ];
 
   function isActive(href: string) {
@@ -145,17 +145,36 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
             <div className="space-y-1">
               {infoItems.map((item) => {
                 const Icon = item.icon;
+                const active = isActive(item.href);
+                if (item.href === '#') {
+                  return (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] text-ci-gray-500 hover:bg-ci-gray-100 hover:text-ci-gray-700 transition-colors"
+                    >
+                      <Icon size={18} />
+                      <span className="text-sm" style={{ fontFamily: 'var(--font-display)' }}>
+                        {item.label}
+                      </span>
+                    </a>
+                  );
+                }
                 return (
-                  <a
+                  <Link
                     key={item.label}
                     href={item.href}
-                    className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] text-ci-gray-500 hover:bg-ci-gray-100 hover:text-ci-gray-700 transition-colors"
+                    className={`flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] transition-colors ${
+                      active
+                        ? 'bg-ci-green-light text-ci-green-dark font-semibold'
+                        : 'text-ci-gray-500 hover:bg-ci-gray-100 hover:text-ci-gray-700'
+                    }`}
                   >
-                    <Icon size={18} />
+                    <Icon size={18} className={active ? 'text-ci-green' : ''} />
                     <span className="text-sm" style={{ fontFamily: 'var(--font-display)' }}>
                       {item.label}
                     </span>
-                  </a>
+                  </Link>
                 );
               })}
             </div>
