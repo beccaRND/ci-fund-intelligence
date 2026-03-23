@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
-import { projects } from '@/lib/seed/projects';
+import { projects, projectNarratives } from '@/lib/seed/projects';
 import { commodityColor, commodityLabel, formatHectares, formatCoordinate, countryFlag } from '@/lib/utils';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import ProjectDataPanels from '@/components/project/ProjectDataPanels';
+import ProjectNarrative from '@/components/project/ProjectNarrative';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -78,6 +79,14 @@ export default async function ProjectProfilePage({ params }: Props) {
         </div>
       </div>
 
+      {/* Project narrative */}
+      {projectNarratives[project.id] && (
+        <ProjectNarrative
+          narrative={projectNarratives[project.id]}
+          projectName={project.name}
+        />
+      )}
+
       {/* Data panels — client component with API calls */}
       <ProjectDataPanels
         projectId={project.id}
@@ -85,6 +94,7 @@ export default async function ProjectProfilePage({ params }: Props) {
         lng={project.lng}
         commodity={project.commodity}
         name={project.name}
+        country={project.country}
       />
 
       {/* Action buttons */}

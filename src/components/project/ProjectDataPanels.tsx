@@ -1,10 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import ClimatePanel from './ClimatePanel';
 import SoilPanel from './SoilPanel';
+import WaterPanel from './WaterPanel';
+import BiodiversityPanel from './BiodiversityPanel';
+import LivelihoodsPanel from './LivelihoodsPanel';
+import AnimalWelfarePanel from './AnimalWelfarePanel';
 import CommodityPanel from './CommodityPanel';
 import GranteeDataPanel from './GranteeDataPanel';
 import ProjectMiniMap from './ProjectMiniMap';
+import PrinciplesTabs, { PrincipleId } from './PrinciplesTabs';
 import { commodityColor as getCommodityColor } from '@/lib/utils';
 
 interface ProjectDataPanelsProps {
@@ -13,9 +19,12 @@ interface ProjectDataPanelsProps {
   lng: number;
   commodity: string;
   name: string;
+  country: string;
 }
 
-export default function ProjectDataPanels({ projectId, lat, lng, commodity, name }: ProjectDataPanelsProps) {
+export default function ProjectDataPanels({ projectId, lat, lng, commodity, name, country }: ProjectDataPanelsProps) {
+  const [activeTab, setActiveTab] = useState<PrincipleId>('climate');
+
   return (
     <div className="space-y-6">
       {/* Mini-map */}
@@ -28,13 +37,24 @@ export default function ProjectDataPanels({ projectId, lat, lng, commodity, name
         />
       </div>
 
-      {/* Climate + Soil side by side on larger screens */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <ClimatePanel lat={lat} lng={lng} />
-        <SoilPanel lat={lat} lng={lng} />
+      {/* Six Principles tabs */}
+      <PrinciplesTabs
+        active={activeTab}
+        onChange={setActiveTab}
+        projectId={projectId}
+      />
+
+      {/* Active principle panel */}
+      <div>
+        {activeTab === 'climate' && <ClimatePanel lat={lat} lng={lng} />}
+        {activeTab === 'soil' && <SoilPanel lat={lat} lng={lng} />}
+        {activeTab === 'water' && <WaterPanel lat={lat} lng={lng} />}
+        {activeTab === 'biodiversity' && <BiodiversityPanel projectId={projectId} />}
+        {activeTab === 'livelihoods' && <LivelihoodsPanel projectId={projectId} country={country} />}
+        {activeTab === 'animal_welfare' && <AnimalWelfarePanel projectId={projectId} />}
       </div>
 
-      {/* Commodity + Grantee Data side by side */}
+      {/* Commodity + Grantee Data — always visible below the principle panel */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <CommodityPanel commodity={commodity} />
         <GranteeDataPanel projectId={projectId} />

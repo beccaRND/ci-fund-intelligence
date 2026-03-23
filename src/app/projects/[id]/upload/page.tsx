@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation';
 import { projects } from '@/lib/seed/projects';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import DataUploadForm from '@/components/upload/DataUploadForm';
 import DataSourceBadge from '@/components/shared/DataSourceBadge';
+import UploadPageContent from '@/components/upload/UploadPageContent';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -34,22 +34,13 @@ export default async function UploadPage({ params }: Props) {
             Data Upload & Quality Checklist
           </h2>
           <p className="text-ci-gray-500">
-            {project.name} · Upload soil carbon monitoring data and validate against VM0042
+            {project.name} · Upload monitoring data and validate against VM0042
           </p>
         </div>
         <DataSourceBadge source="field" label="Grantee-reported data" />
       </div>
 
-      {/* Info banner */}
-      <div className="mb-6 px-4 py-3 bg-ci-teal-light rounded-[var(--radius-md)] border border-ci-teal/20">
-        <p className="text-sm text-ci-teal">
-          <strong>VM0042-aligned checklist</strong> — Fill in the form below to validate your soil carbon
-          monitoring data against Verra VM0042 v2.2 methodology requirements. The quality score updates
-          in real-time as you enter data.
-        </p>
-      </div>
-
-      <DataUploadForm
+      <UploadPageContent
         projectId={project.id}
         projectName={project.name}
         yearJoined={project.yearJoined}

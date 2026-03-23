@@ -6,10 +6,19 @@ import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { projects, dataCompleteness } from '@/lib/seed/projects';
 import { countryFlag, dataStatusIcon, dataStatusColor, commodityColor, commodityLabel } from '@/lib/utils';
 
-type SortKey = 'name' | 'score' | 'soil' | 'biodiversity' | 'water' | 'livelihoods';
+type SortKey = 'name' | 'score' | 'climate' | 'soil' | 'water' | 'biodiversity' | 'livelihoods' | 'animalWelfare';
 type SortDir = 'asc' | 'desc';
 
 const statusOrder = { complete: 3, partial: 2, missing: 1 };
+
+const PRINCIPLE_COLS: { key: SortKey; label: string }[] = [
+  { key: 'climate', label: 'Climate' },
+  { key: 'soil', label: 'Soil' },
+  { key: 'water', label: 'Water' },
+  { key: 'biodiversity', label: 'Bio' },
+  { key: 'livelihoods', label: 'Liveli' },
+  { key: 'animalWelfare', label: 'Welfare' },
+];
 
 export default function ProjectStatusTable() {
   const [sortKey, setSortKey] = useState<SortKey>('score');
@@ -27,18 +36,12 @@ export default function ProjectStatusTable() {
       case 'score':
         cmp = (dcA?.score ?? 0) - (dcB?.score ?? 0);
         break;
-      case 'soil':
-        cmp = (statusOrder[dcA?.soil] ?? 0) - (statusOrder[dcB?.soil] ?? 0);
+      default: {
+        const fieldA = dcA?.[sortKey as keyof typeof dcA];
+        const fieldB = dcB?.[sortKey as keyof typeof dcB];
+        cmp = (statusOrder[fieldA as keyof typeof statusOrder] ?? 0) - (statusOrder[fieldB as keyof typeof statusOrder] ?? 0);
         break;
-      case 'biodiversity':
-        cmp = (statusOrder[dcA?.biodiversity] ?? 0) - (statusOrder[dcB?.biodiversity] ?? 0);
-        break;
-      case 'water':
-        cmp = (statusOrder[dcA?.water] ?? 0) - (statusOrder[dcB?.water] ?? 0);
-        break;
-      case 'livelihoods':
-        cmp = (statusOrder[dcA?.livelihoods] ?? 0) - (statusOrder[dcB?.livelihoods] ?? 0);
-        break;
+      }
     }
 
     return sortDir === 'asc' ? cmp : -cmp;
@@ -101,14 +104,14 @@ export default function ProjectStatusTable() {
                   Project <SortIcon colKey="name" />
                 </button>
               </th>
-              {(['soil', 'biodiversity', 'water', 'livelihoods'] as SortKey[]).map((col) => (
-                <th key={col} className="px-3 py-3 text-center">
+              {PRINCIPLE_COLS.map((col) => (
+                <th key={col.key} className="px-2 py-3 text-center">
                   <button
-                    onClick={() => toggleSort(col)}
+                    onClick={() => toggleSort(col.key)}
                     className="flex items-center gap-1 text-[11px] text-ci-gray-500 uppercase tracking-wider font-semibold hover:text-ci-charcoal transition-colors mx-auto"
                   >
-                    {col === 'biodiversity' ? 'Bio' : col.charAt(0).toUpperCase() + col.slice(1)}
-                    <SortIcon colKey={col} />
+                    {col.label}
+                    <SortIcon colKey={col.key} />
                   </button>
                 </th>
               ))}
@@ -154,17 +157,21 @@ export default function ProjectStatusTable() {
                       </div>
                     </Link>
                   </td>
-                  {(['soil', 'biodiversity', 'water', 'livelihoods'] as const).map((field) => (
-                    <td key={field} className="px-3 py-3 text-center">
-                      <span
-                        className="text-lg"
-                        style={{ color: dataStatusColor(dc?.[field] ?? 'missing') }}
-                        title={dc?.[field] ?? 'missing'}
-                      >
-                        {dataStatusIcon(dc?.[field] ?? 'missing')}
-                      </span>
-                    </td>
-                  ))}
+                  {PRINCIPLE_COLS.map((col) => {
+                    const field = col.key as keyof typeof dc;
+                    const status: 'complete' | 'partial' | 'missing' = (dc?.[field] as 'complete' | 'partial' | 'missing') ?? 'missing';
+                    return (
+                      <td key={col.key} className="px-2 py-3 text-center">
+                        <span
+                          className="text-lg"
+                          style={{ color: dataStatusColor(status) }}
+                          title={status}
+                        >
+                          {dataStatusIcon(status)}
+                        </span>
+                      </td>
+                    );
+                  })}
                   <td className="px-3 py-3 text-center">
                     <div className="flex flex-col items-center gap-1">
                       <div className="w-16 h-1.5 bg-ci-gray-100 rounded-full overflow-hidden">

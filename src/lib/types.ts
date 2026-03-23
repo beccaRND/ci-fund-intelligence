@@ -89,12 +89,56 @@ export interface DegradationAssessment {
 }
 
 export interface DataCompleteness {
+  climate: 'complete' | 'partial' | 'missing';
   soil: 'complete' | 'partial' | 'missing';
-  biodiversity: 'complete' | 'partial' | 'missing';
   water: 'complete' | 'partial' | 'missing';
+  biodiversity: 'complete' | 'partial' | 'missing';
   livelihoods: 'complete' | 'partial' | 'missing';
+  animalWelfare: 'complete' | 'partial' | 'missing';
   score: number;
   lastUpdated: string | null;
+}
+
+export interface ProjectNarrative {
+  overview: string;
+  objectives: string[];
+  challenges: string[];
+  keyResults: string[];
+  currentPhase: string;
+  brandPartnerContext: string | null;
+  lastUpdated: string;
+}
+
+export interface ProjectBiodiversity {
+  ecoregion: string;
+  biome: string;
+  nearestProtectedArea: string;
+  distanceToProtectedAreaKm: number;
+  keySpecies: string[];
+  threatenedSpecies: string[];
+  biodiversityNotes: string;
+}
+
+export interface ProjectAnimalWelfare {
+  applicable: boolean;
+  livestockType: string;
+  estimatedHeadcount: number | null;
+  stockingDensity: string | null;
+  certifications: string[];
+  welfareNotes: string;
+  practicesDocumented: string[];
+}
+
+export interface ProjectLivelihoodContext {
+  countryCode: string;
+  subnationalRegion: string;
+  estimatedBeneficiaries: number | null;
+  beneficiaryBreakdown: string | null;
+  averageFarmSize: string | null;
+  primaryLivelihood: string;
+  indigenousContext: string | null;
+  incomeContext: string | null;
+  livelihoodNotes: string;
 }
 
 export interface ChecklistItem {
