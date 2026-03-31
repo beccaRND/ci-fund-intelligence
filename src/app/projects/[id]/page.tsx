@@ -80,13 +80,6 @@ export default async function ProjectProfilePage({ params }: Props) {
         </div>
       </div>
 
-      {/* Contextual Intelligence — prominent panel before narrative */}
-      <ContextualIntelligenceTeaser
-        lat={project.lat}
-        lng={project.lng}
-        projectId={project.id}
-      />
-
       {/* Project narrative */}
       {projectNarratives[project.id] && (
         <ProjectNarrative
@@ -94,6 +87,13 @@ export default async function ProjectProfilePage({ params }: Props) {
           projectName={project.name}
         />
       )}
+
+      {/* Contextual Intelligence — prominent panel below project summary */}
+      <ContextualIntelligenceTeaser
+        lat={project.lat}
+        lng={project.lng}
+        projectId={project.id}
+      />
 
       {/* Data panels — client component with API calls */}
       <ProjectDataPanels

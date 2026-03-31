@@ -71,12 +71,12 @@ export default function ContextualIntelligenceTeaser({ lat, lng, projectId }: Pr
   const visibleInterpretations = expanded ? interpretations : interpretations.slice(0, 2);
 
   return (
-    <div className="bg-ci-charcoal rounded-[var(--radius-md)] shadow-[var(--shadow-card)] mb-6 overflow-hidden">
+    <div className="bg-ci-green-dark rounded-[var(--radius-md)] shadow-[var(--shadow-card)] mb-6 overflow-hidden">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/20">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-ci-teal/20 flex items-center justify-center shrink-0">
-            <Brain size={15} className="text-ci-teal" />
+          <div className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+            <Brain size={15} className="text-white" />
           </div>
           <div>
             <h3
@@ -92,7 +92,7 @@ export default function ContextualIntelligenceTeaser({ lat, lng, projectId }: Pr
         </div>
         <Link
           href={`/projects/${projectId}/context`}
-          className="flex items-center gap-1.5 text-[12px] font-semibold text-ci-teal hover:text-white transition-colors shrink-0"
+          className="flex items-center gap-1.5 text-[12px] font-semibold text-white/70 hover:text-white transition-colors shrink-0"
         >
           Full analysis
           <ArrowRight size={13} />
@@ -121,7 +121,7 @@ export default function ContextualIntelligenceTeaser({ lat, lng, projectId }: Pr
           </div>
         ) : error ? (
           <p className="text-[13px] text-white/40 italic">
-            Climate data unavailable — <Link href={`/projects/${projectId}/context`} className="underline text-ci-teal/70">view full analysis</Link> to retry.
+            Climate data unavailable — <Link href={`/projects/${projectId}/context`} className="underline text-white/70">view full analysis</Link> to retry.
           </p>
         ) : (
           <>
@@ -132,7 +132,7 @@ export default function ContextualIntelligenceTeaser({ lat, lng, projectId }: Pr
                   ? 'bg-ci-orange/15 text-ci-orange border border-ci-orange/25'
                   : precipAnomaly > 15
                     ? 'bg-ci-teal/15 text-ci-teal border border-ci-teal/25'
-                    : 'bg-white/10 text-white/60 border border-white/10'
+                    : 'bg-white/20 text-white border border-white/20'
               }`}>
                 <CloudRain size={11} />
                 Precip {precipAnomaly > 0 ? '+' : ''}{precipAnomaly}% vs 5yr avg
@@ -142,7 +142,7 @@ export default function ContextualIntelligenceTeaser({ lat, lng, projectId }: Pr
                   ? 'bg-ci-orange/15 text-ci-orange border border-ci-orange/25'
                   : tempAnomaly < -0.8
                     ? 'bg-ci-teal/15 text-ci-teal border border-ci-teal/25'
-                    : 'bg-white/10 text-white/60 border border-white/10'
+                    : 'bg-white/20 text-white border border-white/20'
               }`}>
                 <Thermometer size={11} />
                 Temp {tempAnomaly > 0 ? '+' : ''}{tempAnomaly}°C vs 5yr avg
@@ -177,7 +177,7 @@ export default function ContextualIntelligenceTeaser({ lat, lng, projectId }: Pr
             {interpretations.length > 2 && (
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="flex items-center gap-1.5 mt-4 text-[11px] font-semibold text-white/40 hover:text-ci-teal transition-colors"
+                className="flex items-center gap-1.5 mt-4 text-[11px] font-semibold text-white/60 hover:text-white transition-colors"
               >
                 {expanded ? (
                   <><ChevronUp size={13} /> Show less</>
