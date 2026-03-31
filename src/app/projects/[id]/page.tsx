@@ -6,6 +6,8 @@ import { ArrowLeft } from 'lucide-react';
 import ProjectDataPanels from '@/components/project/ProjectDataPanels';
 import ProjectNarrative from '@/components/project/ProjectNarrative';
 import ContextualIntelligenceTeaser from '@/components/project/ContextualIntelligenceTeaser';
+import DataProvenance from '@/components/project/DataProvenance';
+import EcologicalClaims from '@/components/project/EcologicalClaims';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -95,6 +97,9 @@ export default async function ProjectProfilePage({ params }: Props) {
         projectId={project.id}
       />
 
+      {/* Ecological Claims Registry */}
+      <EcologicalClaims projectId={project.id} />
+
       {/* Data panels — client component with API calls */}
       <ProjectDataPanels
         projectId={project.id}
@@ -104,6 +109,9 @@ export default async function ProjectProfilePage({ params }: Props) {
         name={project.name}
         country={project.country}
       />
+
+      {/* Data Provenance — chain of custody */}
+      <DataProvenance projectId={project.id} />
 
       {/* Secondary action */}
       <div className="flex gap-3 mt-6">
