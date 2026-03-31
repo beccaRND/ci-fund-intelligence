@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import ProjectDataPanels from '@/components/project/ProjectDataPanels';
 import ProjectNarrative from '@/components/project/ProjectNarrative';
+import ContextualIntelligenceTeaser from '@/components/project/ContextualIntelligenceTeaser';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -79,6 +80,13 @@ export default async function ProjectProfilePage({ params }: Props) {
         </div>
       </div>
 
+      {/* Contextual Intelligence — prominent panel before narrative */}
+      <ContextualIntelligenceTeaser
+        lat={project.lat}
+        lng={project.lng}
+        projectId={project.id}
+      />
+
       {/* Project narrative */}
       {projectNarratives[project.id] && (
         <ProjectNarrative
@@ -97,14 +105,8 @@ export default async function ProjectProfilePage({ params }: Props) {
         country={project.country}
       />
 
-      {/* Action buttons */}
+      {/* Secondary action */}
       <div className="flex gap-3 mt-6">
-        <Link
-          href={`/projects/${project.id}/context`}
-          className="px-5 py-2.5 rounded-[var(--radius-md)] bg-ci-green text-white text-sm font-semibold hover:bg-ci-green-dark transition-colors"
-        >
-          View Contextual Intelligence
-        </Link>
         <Link
           href={`/projects/${project.id}/upload`}
           className="px-5 py-2.5 rounded-[var(--radius-md)] border border-ci-gray-300 text-ci-gray-700 text-sm font-semibold hover:bg-ci-gray-100 transition-colors"
