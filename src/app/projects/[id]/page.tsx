@@ -9,6 +9,8 @@ import ContextualIntelligenceTeaser from '@/components/project/ContextualIntelli
 import DataProvenance from '@/components/project/DataProvenance';
 import EcologicalClaims from '@/components/project/EcologicalClaims';
 import FiberSpecsPanel from '@/components/project/FiberSpecsPanel';
+import SupplyChainPanel from '@/components/project/SupplyChainPanel';
+import { getSupplyChainForProject } from '@/lib/seed/supplyChain';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -17,8 +19,8 @@ interface Props {
 export default async function ProjectProfilePage({ params }: Props) {
   const { id } = await params;
   const project = projects.find((p) => p.id === id);
-
   if (!project) notFound();
+  const supplyChain = getSupplyChainForProject(id);
 
   return (
     <div>
@@ -93,6 +95,13 @@ export default async function ProjectProfilePage({ params }: Props) {
 
       {/* Fiber & Commodity Specs */}
       <FiberSpecsPanel projectId={project.id} />
+
+      {/* Supply Chain Context — only show when data exists */}
+      {supplyChain && (
+        <div className="mb-6">
+          <SupplyChainPanel data={supplyChain} />
+        </div>
+      )}
 
       {/* Contextual Intelligence — prominent panel below project summary */}
       <ContextualIntelligenceTeaser

@@ -16,7 +16,9 @@ import {
   PanelLeftClose,
   PanelLeft,
   User,
+  Handshake,
 } from 'lucide-react';
+import { brandPartners } from '@/lib/seed/brandPartners';
 import { projects } from '@/lib/seed/projects';
 import { commodityColor } from '@/lib/utils';
 
@@ -28,10 +30,12 @@ interface SidebarProps {
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const [projectsOpen, setProjectsOpen] = useState(true);
+  const [partnersOpen, setPartnersOpen] = useState(false);
 
   const navItems = [
     { href: '/', label: 'Dashboard', icon: BarChart3 },
-    { href: '/projects', label: 'Projects', icon: MapPin, expandable: true },
+    { href: '/projects', label: 'Projects', icon: MapPin, expandable: 'projects' as const },
+    { href: '/partners', label: 'Brand Partners', icon: Handshake, expandable: 'partners' as const },
     { href: '/landscape', label: 'Landscape Analysis', icon: Mountain },
   ];
 
@@ -90,7 +94,10 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   onClick={(e) => {
                     if (item.expandable) {
                       e.preventDefault();
-                      if (!collapsed) setProjectsOpen(!projectsOpen);
+                      if (!collapsed) {
+                        if (item.expandable === 'projects') setProjectsOpen(!projectsOpen);
+                        if (item.expandable === 'partners') setPartnersOpen(!partnersOpen);
+                      }
                     }
                   }}
                 >
@@ -102,7 +109,9 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                       </span>
                       {item.expandable && (
                         <span className="text-ci-gray-500">
-                          {projectsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                          {(item.expandable === 'projects' ? projectsOpen : partnersOpen)
+                            ? <ChevronDown size={14} />
+                            : <ChevronRight size={14} />}
                         </span>
                       )}
                     </>
@@ -110,7 +119,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 </Link>
 
                 {/* Project sub-nav */}
-                {item.expandable && projectsOpen && !collapsed && (
+                {item.expandable === 'projects' && projectsOpen && !collapsed && (
                   <div className="ml-5 mt-1 space-y-0.5 border-l-2 border-ci-gray-100 pl-3" data-tour="sidebar-projects">
                     {projects.map((p) => (
                       <Link
@@ -127,6 +136,27 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                           style={{ backgroundColor: commodityColor(p.commodity) }}
                         />
                         <span className="truncate">{p.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                {/* Partners sub-nav */}
+                {item.expandable === 'partners' && partnersOpen && !collapsed && (
+                  <div className="ml-5 mt-1 space-y-0.5 border-l-2 border-ci-gray-100 pl-3">
+                    {brandPartners.map((bp) => (
+                      <Link
+                        key={bp.id}
+                        href={`/partners/${bp.id}`}
+                        className={`flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] text-xs transition-colors ${
+                          pathname === `/partners/${bp.id}`
+                            ? 'bg-ci-green-light text-ci-green-dark font-medium'
+                            : 'text-ci-gray-500 hover:text-ci-gray-700 hover:bg-ci-gray-100'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full shrink-0 bg-ci-green" />
+                        <span className="truncate">{bp.name}</span>
+                        <span className="ml-auto text-[9px] text-ci-gray-400 capitalize">{bp.tier}</span>
                       </Link>
                     ))}
                   </div>
