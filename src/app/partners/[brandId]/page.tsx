@@ -5,19 +5,20 @@ import PartnerDashboard from '@/components/partners/PartnerDashboard';
 import ExportImpactPDF from '@/components/partners/ExportImpactPDF';
 
 interface Props {
-  params: { brandId: string };
+  params: Promise<{ brandId: string }>;
 }
 
 export async function generateStaticParams() {
   return [{ brandId: 'kering' }, { brandId: 'inditex' }];
 }
 
-export default function PartnerPage({ params }: Props) {
-  const partner = getPartnerById(params.brandId);
+export default async function PartnerPage({ params }: Props) {
+  const { brandId } = await params;
+  const partner = getPartnerById(brandId);
   if (!partner) notFound();
 
-  const attributions = getAttributionsForPartner(params.brandId);
-  const metrics = aggregatePartnerMetrics(params.brandId);
+  const attributions = getAttributionsForPartner(brandId);
+  const metrics = aggregatePartnerMetrics(brandId);
 
   return (
     <div className="space-y-6">
