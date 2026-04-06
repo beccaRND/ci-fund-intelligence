@@ -8,6 +8,7 @@ import ProjectNarrative from '@/components/project/ProjectNarrative';
 import ContextualIntelligenceTeaser from '@/components/project/ContextualIntelligenceTeaser';
 import DataProvenance from '@/components/project/DataProvenance';
 import EcologicalClaims from '@/components/project/EcologicalClaims';
+import FiberSpecsPanel from '@/components/project/FiberSpecsPanel';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -89,6 +90,9 @@ export default async function ProjectProfilePage({ params }: Props) {
           projectName={project.name}
         />
       )}
+
+      {/* Fiber & Commodity Specs */}
+      <FiberSpecsPanel projectId={project.id} />
 
       {/* Contextual Intelligence — prominent panel below project summary */}
       <ContextualIntelligenceTeaser

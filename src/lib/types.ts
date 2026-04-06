@@ -141,6 +141,17 @@ export interface ProjectLivelihoodContext {
   livelihoodNotes: string;
 }
 
+export interface ProjectMetrics {
+  hectares2022: number | null;
+  hectares2023: number | null;
+  hectares2024Direct: number | null;
+  hectares2024Indirect: number | null;
+  beneficiaries2022: number | null;
+  beneficiaries2023: number | null;
+  beneficiaries2024Direct: number | null;
+  beneficiaries2024Indirect: number | null;
+}
+
 export interface ChecklistItem {
   id: string;
   category: string;

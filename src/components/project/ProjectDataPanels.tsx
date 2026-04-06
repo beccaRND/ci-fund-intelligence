@@ -11,6 +11,7 @@ import CommodityPanel from './CommodityPanel';
 import GranteeDataPanel from './GranteeDataPanel';
 import ProjectMiniMap from './ProjectMiniMap';
 import PrinciplesTabs, { PrincipleId } from './PrinciplesTabs';
+import PrincipleIndicatorView from './PrincipleIndicatorView';
 import { commodityColor as getCommodityColor } from '@/lib/utils';
 
 interface ProjectDataPanelsProps {
@@ -44,7 +45,7 @@ export default function ProjectDataPanels({ projectId, lat, lng, commodity, name
         projectId={projectId}
       />
 
-      {/* Active principle panel */}
+      {/* Active principle panel + M&E framework indicators */}
       <div>
         {activeTab === 'climate' && <ClimatePanel lat={lat} lng={lng} />}
         {activeTab === 'soil' && <SoilPanel lat={lat} lng={lng} />}
@@ -52,6 +53,14 @@ export default function ProjectDataPanels({ projectId, lat, lng, commodity, name
         {activeTab === 'biodiversity' && <BiodiversityPanel projectId={projectId} />}
         {activeTab === 'livelihoods' && <LivelihoodsPanel projectId={projectId} country={country} />}
         {activeTab === 'animal_welfare' && <AnimalWelfarePanel projectId={projectId} />}
+
+        {/* M&E framework indicators below public data panel */}
+        <div className="mt-6 bg-ci-white rounded-[var(--radius-md)] shadow-[var(--shadow-card)] px-5 py-4">
+          <PrincipleIndicatorView
+            principle={activeTab}
+            commodity={commodity}
+          />
+        </div>
       </div>
 
       {/* Commodity + Grantee Data — always visible below the principle panel */}

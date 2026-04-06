@@ -1,4 +1,5 @@
 import FundHealthCards from '@/components/dashboard/FundHealthCards';
+import HectareGrowthChart from '@/components/dashboard/HectareGrowthChart';
 import PortfolioMap from '@/components/dashboard/PortfolioMap';
 import ProjectStatusTable from '@/components/dashboard/ProjectStatusTable';
 
@@ -18,6 +19,8 @@ export default function DashboardPage() {
       </div>
 
       <FundHealthCards />
+
+      <HectareGrowthChart />
 
       <PortfolioMap />
 

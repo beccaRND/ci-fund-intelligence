@@ -52,5 +52,5 @@ export default function ProjectMiniMapInner({ lat, lng, name, commodityColor }: 
     };
   }, [lat, lng, name, commodityColor]);
 
-  return <div ref={containerRef} className="h-[200px] rounded-[var(--radius-sm)]" />;
+  return <div ref={containerRef} className="rounded-[var(--radius-sm)]" style={{ height: '200px' }} />;
 }
