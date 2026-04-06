@@ -1,11 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
 import LoginGate from '@/components/auth/LoginGate';
 import GuidedTour, { useTour } from '@/components/tour/GuidedTour';
+
+const BYPASS_ROUTES = ['/overview'];
 
 function AppContent({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -42,6 +45,10 @@ function AppContent({ children }: { children: React.ReactNode }) {
 }
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  if (BYPASS_ROUTES.includes(pathname)) {
+    return <>{children}</>;
+  }
   return (
     <LoginGate>
       <AppContent>{children}</AppContent>
