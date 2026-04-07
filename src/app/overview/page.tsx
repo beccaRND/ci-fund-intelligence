@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 const PLATFORM_URL = 'https://ci-fund-intelligence.vercel.app';
-const LOOM_URL = '#walkthrough'; // Jim will replace with real Loom URL
+const LOOM_URL = 'https://www.loom.com/share/3460de6c064846b991c13af82c8249af';
 
 // ─── App frame mockup wrapper ──────────────────────────────────────────────
 function AppFrame({ children }: { children: React.ReactNode }) {
